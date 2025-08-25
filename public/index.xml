@@ -13,8 +13,7 @@
       <link>http://localhost:1313/posts/my-first-post/</link>
       <pubDate>Sun, 24 Aug 2025 17:13:36 -0700</pubDate>
       <guid>http://localhost:1313/posts/my-first-post/</guid>
-      <description>&lt;p&gt;Rust is fast, parallelism is good, and choosing fitness functions is hard. \&lt;/p&gt;
-&lt;p&gt;asdfasdfasdfasdf&lt;/p&gt;</description>
+      <description>&lt;p&gt;content goes here&lt;/p&gt;</description>
     </item>
     <item>
       <title>About</title>
