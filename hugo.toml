@@ -3,6 +3,9 @@ languageCode = "en-us"
 title = "Brian's Site"
 theme = "PaperMod"
 
+relativeURLs = false
+canonifyURLs = true
+
 [pagination]
   pagerSize = 5
 
