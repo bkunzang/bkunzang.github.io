@@ -1,6 +1,6 @@
 baseURL = "https://bkunzang.github.io/"
 languageCode = "en-us"
-title = "Brian's Site"
+title = "Brian Kunzang"
 theme = "PaperMod"
 
 relativeURLs = false

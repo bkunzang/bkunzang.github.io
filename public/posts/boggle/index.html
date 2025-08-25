@@ -7,9 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Boggle | Brian Kunzang</title>
 <meta name="keywords" content="">
-<meta name="description" content="This post serves to chronicle my Boggle project, which I have been working on intermittently since January. For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes:">
+<meta name="description" content="Rust is fast, parallelism is good, and choosing fitness functions is hard.">
 <meta name="author" content="Brian Kunzang">
-<link rel="canonical" href="http://localhost:1313/posts/my-first-post/">
+<link rel="canonical" href="http://localhost:1313/posts/boggle/">
 <link crossorigin="anonymous" href="http://localhost:1313/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -18,7 +18,7 @@
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/my-first-post/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/boggle/">
 <noscript>
     <style>
         #theme-toggle,
@@ -130,30 +130,79 @@
         </svg>
       </span>
     </h1>
-    <div class="post-meta"><span title='2025-08-24 17:13:36 -0700 PDT'>August 24, 2025</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Brian Kunzang
+    <div class="post-description">
+      Rust is fast, parallelism is good, and choosing fitness functions is hard.
+    </div>
+    <div class="post-meta"><span title='2025-08-24 17:13:36 -0700 PDT'>August 24, 2025</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Brian Kunzang
 
 </div>
-  </header> 
-  <div class="post-content"><p>This post serves to chronicle my Boggle project, which I have been working on intermittently since January. For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes:</p>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#introduction" aria-label="Introduction">Introduction</a></li>
+                <li>
+                    <a href="#python-attempt" aria-label="Python Attempt">Python Attempt</a></li>
+                <li>
+                    <a href="#revisiting-in-rust" aria-label="Revisiting in Rust">Revisiting in Rust</a><ul>
+                        
+                <li>
+                    <a href="#genetic-algorithm-improvements" aria-label="Genetic Algorithm Improvements">Genetic Algorithm Improvements</a></li></ul>
+                </li>
+                <li>
+                    <a href="#findings" aria-label="Findings">Findings</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
+<p>This post serves to chronicle my Boggle project, which I have been working on intermittently since January. For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes:</p>
 <ul>
 <li>Boggle, which is a 4-by-4 grid</li>
 <li>Big Boggle, which is a 5-by-5 grid</li>
 <li>Super Big Boggle, which is a 6-by-6 grid</li>
 </ul>
 <p>I personally prefer Big Boggle. Thus, for the rest of this post, when I refer to &ldquo;Boggle&rdquo;, I actually mean the 5-by-5 Big Boggle.</p>
+<h2 id="python-attempt">Python Attempt<a hidden class="anchor" aria-hidden="true" href="#python-attempt">#</a></h2>
 <p>Last January, I was curious about how many words are contained in a typical Boggle board that aren&rsquo;t found by players. This inspired me to write a program to solve a Boggle board, which took as input a configuration of letters and returned the words present. Having only taken one introductory programming class at this time, the result was a poorly structured Python implementation that did what it was supposed to do, but barely. I got the solve time down to somewhere around 10 miliseconds, which was then satisfactory, using a tortured method that checked adjacent letters in the board against 15 hash maps containing prefixes of dictionary words. Using this program, I ran 300,000 trials of random boards using the standard set of cubes from my copy of Boggle. From these trials, I computed the following summary statistics:</p>
 <ul>
 <li>Mean: 335.63 points</li>
 <li>SD: 198.26 points</li>
 <li>99% Confidence Interval for mean: (334.70, 336.56)</li>
 <li>Distinct words found: 103,416</li>
+<li>Minimum points: 4</li>
+<li>Maximum points: 2216</li>
 </ul>
+<p><img alt="Distribution of Points in Big Boggle" loading="lazy" src="http://localhost:1313/posts/boggle/big_boggle_300k.png"></p>
 <p>My next thought was that with this program in hand, I could try to create a better set of letter cubes than the ones shipped with standard Boggle. My idea of &ldquo;better&rdquo; at this time was simply that a set of cubes that results in higher scores for players is more fun, so a &ldquo;better&rdquo; set of cubes is one that contains the most points on average. In pursuit of this goal, I implemented a genetic algorithm that did successfully optimize sets of Boggle cubes according to a given fitness function, with two caveats:</p>
 <ul>
 <li>It was incredibly slow; I would often have to run the program overnight to reach the desired results.</li>
 <li>It is hard to choose a fitness function that faithfully evaluates whether or not a set of cubes is good for gameplay. Functions that seem reasonable on face value often end up optimized to undesirable extremes.</li>
 </ul>
 <p>The first point was annoying but not insurmountable. The second point foreshadows the comical death of the idea that &ldquo;better&rdquo; is equivalent to scoring more points. When I ran my optimizer trying to find a set of cubes that maximizes total points, I received this in return:</p>
+<ul>
+<li>Mean: 625.50</li>
+<li>SD: 327.43</li>
+<li>99% confidence interval for mean: (623.96, 627.04)</li>
+<li>Distinct words found: 93,466</li>
+<li>Minimum points: 2</li>
+<li>Maximum points: 3610</li>
+</ul>
+<p>The first red flag of this high-scoring set is that the number of distinct words found in 300k trials is substantially lower than the number of distinct words found in 300k trials with the standard set.</p>
+<h2 id="revisiting-in-rust">Revisiting in Rust<a hidden class="anchor" aria-hidden="true" href="#revisiting-in-rust">#</a></h2>
+<p>In the time since shelving the Python version, I&rsquo;ve completed two CS courses: one on data structures and one covering assorted low-level topics including assembly language, hardware, C, and most importantly for this project, parallelism. The performance benefits of C over Python that this class demonstrated to me that it was necessary to rewrite the Boggle project in a more performant language. My previous experience in Rust combined with the fact that I do not enjoy programming in C made it an easy choice. The parallelism content provided a way to improve performance even more. As anticipated, the results were excellent. This new version takes around 370 <em>microseconds</em> on average to randomize and solve one board. Because I don&rsquo;t have exact benchmarks for the Python version, it&rsquo;s hard to say exactly how many times faster the Rust version is, but the speedup between the two versions is somewhere between 25 and 40 times. The promise of this, of course, is the ability to run better, longer, and more simulations in the quest to optimize Boggle.</p>
+<h3 id="genetic-algorithm-improvements">Genetic Algorithm Improvements<a hidden class="anchor" aria-hidden="true" href="#genetic-algorithm-improvements">#</a></h3>
+<p>Once my Rust Boggle program was up and running, I ran the same total points optimization that produced unsatisfactory cubes in the Python version. This was simply to provide informal benchmarks for the performance of the new version. As shown in the following image, I found that 1000 generations with a population size of 1000 was sufficient to achieve the same maximum in the neighborhood of 600-650 points on average. However, it must be noted that this is incredibly computationally intensive, despite being immensely faster in Rust. To evaluate each cube set under this fitness function, we run it 5 times and average the total points per round. This is repeated 1000 times each generation (once for each member of the population) for 1000 generations. Thus, we see we are simulating a ridiculous <em>5 million</em> games of Boggle to complete the desired optimization.</p>
+<p>Ideally, we would like to reduce the population size, number of generations, or both, while still reliably reaching the global maximum (I understand it is possible that the algorithm is converging to a local maximum without me knowing, but I doubt this given how the sets produced tend to have all but optimized out most letters). As the following graph demonstrates (n=200, no shuffling), the issue that one encounters when using a population size that is too small is premature convergence to a local maximum. The issue with running the algorithm for too few generations is obvious: you may turn off the optimizer before it reaches the optimum. I decided to approach problem from the population size perspective. In some way, the premature convergence to a local maximum seems to occur due to the algorithm not exploring enough of the space, or because of limited genetic diversity in the initial random population. Then, we can circumvent premature convergence by introducing additional randomness to the population throughout the progress of the algorithm. My idea to do this was to instead of copying over genomes not selected for crossover or mutation exactly between generations, I would shuffle them, taking advantage of the useful property of Boggle cube sets that their most important attribute is the distribution of letters, regardless of how they are placed on cubes. This means that a permutation of a good cube set is likely to also be fairly good. This is much more computationally efficient than carrying extra population members throughout every generation.</p>
+<p><img alt="Comparison of Shuffling/No Shuffling/Hybrid Shuffling for n=200" loading="lazy" src="http://localhost:1313/posts/boggle/200_comparison_9875432_20250823_155716.png"></p>
+<p>With the new and improved genetic algorithm in hand, I finally returned to the original task of optimizing Boggle.</p>
+<h2 id="findings">Findings<a hidden class="anchor" aria-hidden="true" href="#findings">#</a></h2>
 
 
   </div>
@@ -161,13 +210,6 @@
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
-<nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/boggle/">
-    <span class="title">« Prev</span>
-    <br>
-    <span>Boggle</span>
-  </a>
-</nav>
 
   </footer>
 </article>

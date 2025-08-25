@@ -3,6 +3,6 @@ title: "Welcome"
 type: "home"
 ---
 
-# Title
+# Welcome to my website!
 
 Text
