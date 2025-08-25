@@ -15,9 +15,12 @@ canonifyURLs = true
   showPostNavLinks = true
   showBreadCrumbs = true
   showCodeCopyButtons = true
-  author = "Your Name"
+  author = "Brian Kunzang"
   description = "A personal blog about me and my projects"
   keywords = ["Blog", "Personal", "Hugo"]
+  showHomeRecentPosts = true      # enables recent posts on homepage
+  homeRecentPostsTitle = "Recent Posts"
+  homeRecentPostsLimit = 5       # number of posts to display
 
 [menu]
   [[menu.main]]

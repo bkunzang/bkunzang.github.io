@@ -2,6 +2,8 @@
 title: "About"
 draft: false
 type: "page"
+showReadingTime: false
+showAuthor: false
 ---
 
-This is my about page where I talk about myself and my site.
+Text
