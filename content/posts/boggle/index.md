@@ -3,6 +3,7 @@ title: "Boggle"
 date: 2025-08-24T17:13:36-07:00
 description: "Rust is fast, parallelism is good, and choosing fitness functions is hard."
 summary: "Rust is fast, parallelism is good, and choosing fitness functions is hard."
+type: "post"
 draft: false
 ShowToc: true
 TocOpen: true
@@ -32,7 +33,7 @@ My next thought was that with this program in hand, I could try to create a bett
 * It was incredibly slow; I would often have to run the program overnight to reach the desired results.
 * It is hard to choose a fitness function that faithfully evaluates whether or not a set of cubes is good for gameplay. Functions that seem reasonable on face value often end up optimized to undesirable extremes.
 
-The first point was annoying but not insurmountable. The second point foreshadows the comical death of the idea that "better" is equivalent to scoring more points. When I ran my optimizer trying to find a set of cubes that maximizes total points, I received this in return:
+The first point was annoying but not insurmountable. The second point foreshadows the amusing death of the idea that "better" is equivalent to scoring more points. When I ran my optimizer trying to find a set of cubes that maximizes total points, I received this in return:
 * Mean: 625.50
 * SD: 327.43
 * 99% confidence interval for mean: (623.96, 627.04)
@@ -64,39 +65,39 @@ With the new and improved genetic algorithm in hand, I finally returned to the o
 ### Real Results
 In terms of alternatives to the standard set, I pursued two general avenues: similarity and frequency. 
 
-The similarity approach is a direct response to what happened when I optimized for total points (everything turned into a few common letters). I thought to counter this it might be beneficial to add a component to the fitness function that penalizes the words produced in each board being too similar. To do this, I calculated for each word the Jaro-Winkler similarity with the word and 5 randomly selected ones also present in the board. Then, I averaged these values to create a composite similarity score for the board. I created a fitness function using this by multiplying the total points with a power of the similarity score. Higher powers penalize similarity more, because the Jaro-Winkler similarity is always between 0 and 1.
+The similarity approach is a direct response to what happened when I optimized for total points (everything turned into a few common letters). I thought to counter this it might be beneficial to add a component to the fitness function that penalizes the words produced in each board being too similar. To do this, I calculated for each word the Jaro-Winkler similarity with the word and 5 randomly selected ones also present in the board. Then, I averaged these values to create a composite similarity score for the board. I created a fitness function using this by multiplying the total points with a power of the similarity score. Higher powers penalize similarity more, because the Jaro-Winkler similarity is always between 0 and 1. Ultimately, this approach creates more reasonable sets that perform better than standard points-wise, with the catch that they are also less diverse. The particulars of the letter distribution are summarised in the table after the following paragraph in the "Similarity-Minimizing Count" column.
 
 The frequency approach is derived from the idea that letters found in Boggle words should follow the same distribution as letters found in English words in general. For reference, I conducted all frequency calculations using [this frequency table](https://pi.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html). When I began to pursue this idea, I realized far too late that the distribution of letters in the standard cube set is almost certainly derived using a frequency table and no complicated machinery like I have come up with; the expected counts for each letter given the frequency table are a near perfect match for the counts on the standard set, as demonstrated in the table below. 
  
  
-| Letter | Expected Count | Standard Count | Frequency-Optimized Count
-|--------|----------------|--------------| --------------
-| A      | 12.18          |       12      | 15
-| B      | 2.24           |      1        | 1
-| C      | 4.07           |       5       | 4
-| D      | 6.48           |        6      | 8
-| E      | 18.03          |       18      | 15
-| F      | 3.45           |        4      | 2
-| G      | 3.05           |        3      | 2
-| H      | 8.88           |       6       | 13
-| I      | 10.96          |       11       | 16
-| J      | 0.15           |         1     | 1
-| K      | 1.04           |       2       | 1
-| L      | 5.97           |        6      | 4
-| M      | 3.92           |        4      | 2
-| N      | 10.43          |       11       | 11
-| O      | 11.52          |       11       | 14
-| P      | 2.73           |       3       | 2
-| Q      | 0.17           |      2        | 1
-| R      | 9.03           |      8        | 9
-| S      | 9.42           |       9       | 6
-| T      | 13.65          |       13       | 14
-| U      | 4.32           |       5      | 2
-| V      | 1.67           |       1       | 1
-| W      | 3.14           |       3       | 1
-| X      | 0.26           |       1       | 1
-| Y      | 3.17           |      2        | 3
-| Z      | 0.11           |       1       | 1
+| Letter | Expected Count | Standard Count | Frequency-Optimized Count | Similarity-Minimizing Count
+|--------|----------------|--------------| -------------- | --------------
+| A      | 12.18          |       12      | 15 | 17
+| B      | 2.24           |      1        | 1 | 2
+| C      | 4.07           |       5       | 4 | 3 
+| D      | 6.48           |        6      | 8 | 5
+| E      | 18.03          |       18      | 15 | 16
+| F      | 3.45           |        4      | 2 | 1
+| G      | 3.05           |        3      | 2 | 1
+| H      | 8.88           |       6       | 13 | 1
+| I      | 10.96          |       11       | 16 | 16
+| J      | 0.15           |         1     | 1 | 1
+| K      | 1.04           |       2       | 1 | 1
+| L      | 5.97           |        6      | 4 | 10
+| M      | 3.92           |        4      | 2 | 5
+| N      | 10.43          |       11       | 11 | 8
+| O      | 11.52          |       11       | 14 | 15
+| P      | 2.73           |       3       | 2 | 4
+| Q      | 0.17           |      2        | 1 | 1
+| R      | 9.03           |      8        | 9 | 10
+| S      | 9.42           |       9       | 6 | 8
+| T      | 13.65          |       13       | 14 | 18
+| U      | 4.32           |       5      | 2 | 2
+| V      | 1.67           |       1       | 1 | 1
+| W      | 3.14           |       3       | 1 | 1
+| X      | 0.26           |       1       | 1 | 1
+| Y      | 3.17           |      2        | 3 | 1
+| Z      | 0.11           |       1       | 1 | z
 
  
  

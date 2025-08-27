@@ -1,9 +1,0 @@
-<h2 class="text-2xl font-bold mb-6">Recent Posts</h2>
-<div class="post-entry-grid">
-  {{ range first 3 .Site.RegularPages }}
-    <div class="post-card">
-      <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-      <p>{{ .Summary }}</p>
-    </div>
-  {{ end }}
-</div>
