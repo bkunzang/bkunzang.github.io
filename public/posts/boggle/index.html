@@ -123,17 +123,11 @@
     <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       Boggle
-      <span class="entry-hint" title="Draft">
-        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
-          <path
-            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
-        </svg>
-      </span>
     </h1>
     <div class="post-description">
       Rust is fast, parallelism is good, and choosing fitness functions is hard.
     </div>
-    <div class="post-meta"><span title='2025-08-24 17:13:36 -0700 PDT'>August 24, 2025</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Brian Kunzang
+    <div class="post-meta"><span title='2025-08-24 17:13:36 -0700 PDT'>August 24, 2025</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;Brian Kunzang
 
 </div>
   </header> <div class="toc">
@@ -154,15 +148,22 @@
                     <a href="#genetic-algorithm-improvements" aria-label="Genetic Algorithm Improvements">Genetic Algorithm Improvements</a></li></ul>
                 </li>
                 <li>
-                    <a href="#findings" aria-label="Findings">Findings</a>
+                    <a href="#findings" aria-label="Findings">Findings</a><ul>
+                        
+                <li>
+                    <a href="#real-results" aria-label="Real Results">Real Results</a></li>
+                <li>
+                    <a href="#trivia-and-curiosities" aria-label="Trivia and Curiosities">Trivia and Curiosities</a>
                 </li>
+            </ul>
+            </li>
             </ul>
         </div>
     </details>
 </div>
 
   <div class="post-content"><h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
-<p>This post serves to chronicle my Boggle project, which I have been working on intermittently since January. For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes:</p>
+<p>This post serves to chronicle my Boggle project, which I have been working on intermittently since January. It is mostly complete, but I hope to add later more detailed data of simulations of many Boggle games, including word frequencies. For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes:</p>
 <ul>
 <li>Boggle, which is a 4-by-4 grid</li>
 <li>Big Boggle, which is a 5-by-5 grid</li>
@@ -194,15 +195,199 @@
 <li>Minimum points: 2</li>
 <li>Maximum points: 3610</li>
 </ul>
-<p>The first red flag of this high-scoring set is that the number of distinct words found in 300k trials is substantially lower than the number of distinct words found in 300k trials with the standard set.</p>
+<p>The first red flag of this high-scoring set is that the number of distinct words found in 300k trials is substantially lower than the number of distinct words found in 300k trials with the standard set. Inspecting the cubes reveals why. The high scoring set has 27 instances of the letter &rsquo;e&rsquo; and 21 of the letter &rsquo;s&rsquo; out of 150 slots, as opposed to 19 and 9 respectively in the standard set. To make room for this, the high scoring set has only one instance the following letters: B, F, H, J, K, Q, V, W, X, Y, Z, and only two of G and M. Thus, this set sacrifices diversity of words and representative-ness of letter frequencies in English in return for long words derived from plurals. As a note, I believe that this high scoring cube set is likely close to the global maximum because of how many letters have been optimized out as much as they can be while staying within the bounds of legality, where the only constraint I require of a cube set to be legal is that each letter is represented at least once.</p>
+<p>At this point, I was stuck. Each run of the genetic algorithm took hours, so I couldn&rsquo;t experiment freely, and I didn&rsquo;t have much idea of what &ldquo;better&rdquo; meant other than that it should retain more variety of letters than this first attempt. As a result, I shelved the project.</p>
 <h2 id="revisiting-in-rust">Revisiting in Rust<a hidden class="anchor" aria-hidden="true" href="#revisiting-in-rust">#</a></h2>
-<p>In the time since shelving the Python version, I&rsquo;ve completed two CS courses: one on data structures and one covering assorted low-level topics including assembly language, hardware, C, and most importantly for this project, parallelism. The performance benefits of C over Python that this class demonstrated to me that it was necessary to rewrite the Boggle project in a more performant language. My previous experience in Rust combined with the fact that I do not enjoy programming in C made it an easy choice. The parallelism content provided a way to improve performance even more. As anticipated, the results were excellent. This new version takes around 370 <em>microseconds</em> on average to randomize and solve one board. Because I don&rsquo;t have exact benchmarks for the Python version, it&rsquo;s hard to say exactly how many times faster the Rust version is, but the speedup between the two versions is somewhere between 25 and 40 times. The promise of this, of course, is the ability to run better, longer, and more simulations in the quest to optimize Boggle.</p>
+<p>In the time since setting aside the Python version, I&rsquo;ve completed two CS courses: one on data structures and one covering assorted low-level topics including assembly language, computer architecture, C, and most importantly for this project, parallelism. The performance benefits of C over Python that this class demonstrated to me that it was necessary to rewrite the Boggle project in a more performant language. My previous experience in Rust combined with the fact that I do not enjoy programming in C made it an easy choice. The parallelism content provided a way to improve performance even more. As anticipated, the results were excellent. This new version takes around 370 <em>microseconds</em> on average to randomize and solve one board. Because I don&rsquo;t have exact benchmarks for the Python version, it&rsquo;s hard to say exactly how many times faster the Rust version is, but the speedup between the two versions is somewhere between 25 and 40 times. The promise of this, of course, is the ability to run better, longer, and more simulations to optimize Boggle.</p>
 <h3 id="genetic-algorithm-improvements">Genetic Algorithm Improvements<a hidden class="anchor" aria-hidden="true" href="#genetic-algorithm-improvements">#</a></h3>
-<p>Once my Rust Boggle program was up and running, I ran the same total points optimization that produced unsatisfactory cubes in the Python version. This was simply to provide informal benchmarks for the performance of the new version. As shown in the following image, I found that 1000 generations with a population size of 1000 was sufficient to achieve the same maximum in the neighborhood of 600-650 points on average. However, it must be noted that this is incredibly computationally intensive, despite being immensely faster in Rust. To evaluate each cube set under this fitness function, we run it 5 times and average the total points per round. This is repeated 1000 times each generation (once for each member of the population) for 1000 generations. Thus, we see we are simulating a ridiculous <em>5 million</em> games of Boggle to complete the desired optimization.</p>
-<p>Ideally, we would like to reduce the population size, number of generations, or both, while still reliably reaching the global maximum (I understand it is possible that the algorithm is converging to a local maximum without me knowing, but I doubt this given how the sets produced tend to have all but optimized out most letters). As the following graph demonstrates (n=200, no shuffling), the issue that one encounters when using a population size that is too small is premature convergence to a local maximum. The issue with running the algorithm for too few generations is obvious: you may turn off the optimizer before it reaches the optimum. I decided to approach problem from the population size perspective. In some way, the premature convergence to a local maximum seems to occur due to the algorithm not exploring enough of the space, or because of limited genetic diversity in the initial random population. Then, we can circumvent premature convergence by introducing additional randomness to the population throughout the progress of the algorithm. My idea to do this was to instead of copying over genomes not selected for crossover or mutation exactly between generations, I would shuffle them, taking advantage of the useful property of Boggle cube sets that their most important attribute is the distribution of letters, regardless of how they are placed on cubes. This means that a permutation of a good cube set is likely to also be fairly good. This is much more computationally efficient than carrying extra population members throughout every generation.</p>
-<p><img alt="Comparison of Shuffling/No Shuffling/Hybrid Shuffling for n=200" loading="lazy" src="http://localhost:1313/posts/boggle/200_comparison_9875432_20250823_155716.png"></p>
+<p>Once my Rust Boggle program was up and running, I ran the same total points optimization that produced unsatisfactory cubes in the Python version. This was simply to provide informal benchmarks for the performance of the new version. I found that running 1000 generations with a population size of 1000 was sufficient to achieve the same maximum in the neighborhood of 600-650 points on average. However, it must be noted that doing so is still computationally intensive, despite being immensely faster using the new Rust version. To evaluate each cube set under this fitness function, we run it 5 times and average the total points per round. This is repeated 1000 times each generation (once for each member of the population) for 1000 generations. Thus, we see we are simulating a ridiculous <em>5 million</em> games of Boggle to complete the desired optimization.</p>
+<p>Ideally, we would like to reduce the population size, number of generations, or both, while still reliably reaching the global maximum. As the graph below demonstrates (n=200, no shuffling), the issue that one encounters when using a population size that is too small is premature convergence to a local maximum. In some way, the premature convergence to a local maximum seems to occur due to the algorithm not exploring enough of the space, or because of limited genetic diversity in the initial random population. Then, we can circumvent premature convergence by introducing additional randomness to the population throughout the execution of the algorithm. My idea to do this was to instead of copying over genomes not selected for crossover or mutation exactly between generations, I would shuffle them, taking advantage of the useful property of Boggle cube sets that their most important attribute is the distribution of letters, regardless of how they are placed on cubes. This means that a permutation of a good cube set is likely to also be fairly good. This is much more computationally efficient than carrying extra population members throughout every generation. Since we see we reach the maximum with a population size of 250 and 600 generations to be careful not to shut the optimizer off too soon, we can now perform the same optimization with 750 thousand simulations, rather than 5 million: over a 6 times improvement.</p>
+<p>In the graph below, you will notice that there are two lines that overlap for the first two thirds of the generations before diverging but generally performing similarly. The &ldquo;shuffling&rdquo; line works exactly as I have described: instead of copying over cube sets exactly between generations, it shuffles them. The &ldquo;hybrid shuffling&rdquo; line does this until generation where the two lines diverge, at which point it stops shuffling in favor of direct copying. Since the two methods perform similarly in simulations, I prefer the hybrid method because it facilitates convergence to a single cube set, rather than a family of permutations.</p>
+<p><img alt="Comparison of Shuffling/No Shuffling/Hybrid Shuffling for n=250 and n=500" loading="lazy" src="http://localhost:1313/posts/boggle/shuffle_comparison_seed_743282_20250825_020342.png"></p>
 <p>With the new and improved genetic algorithm in hand, I finally returned to the original task of optimizing Boggle.</p>
 <h2 id="findings">Findings<a hidden class="anchor" aria-hidden="true" href="#findings">#</a></h2>
+<h3 id="real-results">Real Results<a hidden class="anchor" aria-hidden="true" href="#real-results">#</a></h3>
+<p>In terms of alternatives to the standard set, I pursued two general avenues: similarity and frequency.</p>
+<p>The similarity approach is a direct response to what happened when I optimized for total points (everything turned into a few common letters). I thought to counter this it might be beneficial to add a component to the fitness function that penalizes the words produced in each board being too similar. To do this, I calculated for each word the Jaro-Winkler similarity with the word and 5 randomly selected ones also present in the board. Then, I averaged these values to create a composite similarity score for the board. I created a fitness function using this by multiplying the total points with a power of the similarity score. Higher powers penalize similarity more, because the Jaro-Winkler similarity is always between 0 and 1.</p>
+<p>The frequency approach is derived from the idea that letters found in Boggle words should follow the same distribution as letters found in English words in general. For reference, I conducted all frequency calculations using <a href="https://pi.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html">this frequency table</a>. When I began to pursue this idea, I realized far too late that the distribution of letters in the standard cube set is almost certainly derived using a frequency table and no complicated machinery like I have come up with; the expected counts for each letter given the frequency table are a near perfect match for the counts on the standard set, as demonstrated in the table below.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Letter</th>
+          <th>Expected Count</th>
+          <th>Standard Count</th>
+          <th>Frequency-Optimized Count</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>A</td>
+          <td>12.18</td>
+          <td>12</td>
+          <td>15</td>
+      </tr>
+      <tr>
+          <td>B</td>
+          <td>2.24</td>
+          <td>1</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>C</td>
+          <td>4.07</td>
+          <td>5</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>D</td>
+          <td>6.48</td>
+          <td>6</td>
+          <td>8</td>
+      </tr>
+      <tr>
+          <td>E</td>
+          <td>18.03</td>
+          <td>18</td>
+          <td>15</td>
+      </tr>
+      <tr>
+          <td>F</td>
+          <td>3.45</td>
+          <td>4</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>G</td>
+          <td>3.05</td>
+          <td>3</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>H</td>
+          <td>8.88</td>
+          <td>6</td>
+          <td>13</td>
+      </tr>
+      <tr>
+          <td>I</td>
+          <td>10.96</td>
+          <td>11</td>
+          <td>16</td>
+      </tr>
+      <tr>
+          <td>J</td>
+          <td>0.15</td>
+          <td>1</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>K</td>
+          <td>1.04</td>
+          <td>2</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>L</td>
+          <td>5.97</td>
+          <td>6</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>M</td>
+          <td>3.92</td>
+          <td>4</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>N</td>
+          <td>10.43</td>
+          <td>11</td>
+          <td>11</td>
+      </tr>
+      <tr>
+          <td>O</td>
+          <td>11.52</td>
+          <td>11</td>
+          <td>14</td>
+      </tr>
+      <tr>
+          <td>P</td>
+          <td>2.73</td>
+          <td>3</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>Q</td>
+          <td>0.17</td>
+          <td>2</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>R</td>
+          <td>9.03</td>
+          <td>8</td>
+          <td>9</td>
+      </tr>
+      <tr>
+          <td>S</td>
+          <td>9.42</td>
+          <td>9</td>
+          <td>6</td>
+      </tr>
+      <tr>
+          <td>T</td>
+          <td>13.65</td>
+          <td>13</td>
+          <td>14</td>
+      </tr>
+      <tr>
+          <td>U</td>
+          <td>4.32</td>
+          <td>5</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>V</td>
+          <td>1.67</td>
+          <td>1</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>W</td>
+          <td>3.14</td>
+          <td>3</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>X</td>
+          <td>0.26</td>
+          <td>1</td>
+          <td>1</td>
+      </tr>
+      <tr>
+          <td>Y</td>
+          <td>3.17</td>
+          <td>2</td>
+          <td>3</td>
+      </tr>
+      <tr>
+          <td>Z</td>
+          <td>0.11</td>
+          <td>1</td>
+          <td>1</td>
+      </tr>
+  </tbody>
+</table>
+<p>Note that according to the frequency table, we expect the letter F to appear 3.45 times. The standard set translates this to giving four slots to F. Despite this, based on observation from having played Boggle, the letter F is often fairly useless in game. Indeed, every fitness function I have run that rewards points or words allots only one slot to F, suggesting that F is in some way less suited to making words in Boggle combined with other useful letters than its English frequency would suggest. Thus, my idea was that the quantity matching the frequency table should be the frequency of each letter across words contained in the board, rather than simply the letters on the cubes. After all, it doesn&rsquo;t matter how closely the cubes match the desired frequencies if the letters are not being used to create words proportional to their frequencies. To do this, I approximated the mean squared error of the letter frequency vector derived from the words found with respect to the expected frequency vector derived from the table.</p>
+<p>The results were interesting, as seen in the &ldquo;Frequency-Optimized Count&rdquo; column of the above table. This set stands out for keeping the E and S problem under control and for including nontrivial numbers of less common letters. The real surprise is the fact that H is represented 13 times, over double its representation in the standard board, and substantially more than its expected representation. Under more careful examination, we find that this set scores about 40 fewer points on average and finds fewer unique words in the long run than the standard set.</p>
+<p>However, nothing I have discussed touches on the most important aspect of a Boggle cube set: how enjoyable it is for gameplay. It may be the case that a lower scoring set is actually more fun due to particulars with the letter distribution, or being more challenging. It may also be the case that a set that does not reflect the English letter distribution is more enjoyable than all of these. The qualities of the true best Boggle cube set, then, remain to be seen.</p>
+<h3 id="trivia-and-curiosities">Trivia and Curiosities<a hidden class="anchor" aria-hidden="true" href="#trivia-and-curiosities">#</a></h3>
+<ul>
+<li>The longest word found in my simulations of the standard set was the 16-letter <em>concertmeisters</em>.</li>
+<li>The most common word in standard Boggle according to my simulations is <em>ante</em>.</li>
+<li>A <em>rete</em> is defined as &ldquo;an elaborate network of blood vessels or nerve cells.&rdquo; It is also one of the top 10 most common words using the standard set, and a word I did not know before this project. Similarly, most people know that a <em>tern</em> is a type of seabird. However, I suspect that far fewer know that <em>erne</em> refers to &ldquo;the sea eagle&rdquo; and that <em>terne</em> is &ldquo;a lead alloy containing about 20 percent tin and often some antimony.&rdquo; All three of these words are very common in Boggle.</li>
+<li>When I accidentally ran the frequency fitness function inverted, it produced a set allocating over 20 slots to the letter Y and 15 slots to X.</li>
+</ul>
 
 
   </div>

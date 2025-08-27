@@ -4,16 +4,7 @@
     {{ .Content }}
   </section>
 
-  <section class="recent-posts" style="margin-top: 4rem;">
-  <h2>Recent Posts</h2>
-  <ul>
-    {{ range first 5 (where .Site.RegularPages "Type" "posts") }}
-      <li>
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-        <span class="post-date">{{ .Date.Format "Jan 2, 2006" }}</span>
-      </li>
-    {{ end }}
-  </ul>
-</section>
+{{ partial "recent-posts.html" . }}
+
 </main>
 {{ end }}
