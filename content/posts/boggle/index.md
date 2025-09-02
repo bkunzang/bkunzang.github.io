@@ -9,12 +9,14 @@ ShowToc: true
 TocOpen: true
 ---
 ## Introduction
-This post serves to chronicle my Boggle project, which I have been working on intermittently since January. It is mostly complete, but I hope to add later more detailed data of simulations of many Boggle games, including word frequencies. For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes: 
+For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes: 
 * Boggle, which is a 4-by-4 grid
 * Big Boggle, which is a 5-by-5 grid
 * Super Big Boggle, which is a 6-by-6 grid
 
 I personally prefer Big Boggle. Thus, for the rest of this post, when I refer to "Boggle", I actually mean the 5-by-5 Big Boggle. 
+
+This post serves to chronicle my Boggle project, which I have been working on intermittently since January. It is mostly complete, but I hope to add later more detailed data of simulations of many Boggle games, including word frequencies. The project started as an effort to understand the standard game but later evolved into an effort to improve upon it by changing the set of letter cubes.
 
 ## Python Attempt
 
@@ -46,6 +48,7 @@ The first red flag of this high-scoring set is that the number of distinct words
 At this point, I was stuck. Each run of the genetic algorithm took hours, so I couldn't experiment freely, and I didn't have much idea of what "better" meant other than that it should retain more variety of letters than this first attempt. As a result, I shelved the project.
 
 ## Revisiting in Rust
+The code for the implementation discussed in this section can be found in [this GitHub repo](https://github.com/bkunzang/boggle_rs).
 In the time since setting aside the Python version, I've completed two CS courses: one on data structures and one covering assorted low-level topics including assembly language, computer architecture, C, and most importantly for this project, parallelism. The performance benefits of C over Python that this class demonstrated to me that it was necessary to rewrite the Boggle project in a more performant language. My previous experience in Rust combined with the fact that I do not enjoy programming in C made it an easy choice. The parallelism content provided a way to improve performance even more. As anticipated, the results were excellent. This new version takes around 370 *microseconds* on average to randomize and solve one board. Because I don't have exact benchmarks for the Python version, it's hard to say exactly how many times faster the Rust version is, but the speedup between the two versions is somewhere between 25 and 40 times. The promise of this, of course, is the ability to run better, longer, and more simulations to optimize Boggle.
 
 ### Genetic Algorithm Improvements
