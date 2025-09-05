@@ -9,7 +9,7 @@ ShowToc: true
 TocOpen: true
 ---
 ## Introduction
-For those who are unfamiliar, Boggle is a word game in which cubes with a letter on each face are distributed randomly over a square grid, in which players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes: 
+In the game of Boggle, cubes with a letter on each face are distributed randomly over a square grid, and players look for words formed by adjacent letters. After a specified period of time, players compare their word lists and receive points for all unique words. Boggle comes in three sizes: 
 * Boggle, which is a 4-by-4 grid
 * Big Boggle, which is a 5-by-5 grid
 * Super Big Boggle, which is a 6-by-6 grid
