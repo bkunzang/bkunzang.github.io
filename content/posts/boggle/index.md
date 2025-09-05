@@ -110,6 +110,15 @@ Note that according to the frequency table, we expect the letter F to appear 3.4
 
 The results were interesting, as seen in the "Frequency-Optimized Count" column of the above table. This set stands out for keeping the E and S problem under control and for including nontrivial numbers of less common letters. The real surprise is the fact that H is represented 13 times, over double its representation in the standard board, and substantially more than its expected representation. Under more careful examination, we find that this set scores about 40 fewer points on average and finds fewer unique words in the long run than the standard set. 
 
+In the table below, I provide the average scores for each cube set discussed in the post for the total points and the frequency fitness functions estimated over 10,000 simulations. Note that for the frequency fitness function, lower values are "better". 
+
+|Cube Set| Total Points Fitness | Frequency Fitness
+|--------|----------------------|-----------------
+|Standard| 338 | 0.03958
+|High Scoring| 620 | 0.05588
+|Similarity Optimized| 408 | 0.04321
+|Frequency Optimized| 298 | 0.03848
+
 My goal was to see if the standard Boggle cube set can be improved upon. I believe it can be, especially since the standard set seems to have been derived extremely naïvely. Perhaps the set that optimizes player enjoyment is the one minimizing similarity of words; players might enjoy finding a diverse set of words over one that contains many variants on a few roots. Perhaps it is the set for which the words existing in the board best match the English frequency table; this allows the game of Boggle to reflect the full breadth of the English language (although the dominance of the letter H in this set leads me to question this hypothesis). Which one of these is the best remains to be seen, and I look forward to trying these candidate sets in real Boggle games to test my findings.
 
 ### Trivia and Curiosities
