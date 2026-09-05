@@ -1,5 +1,7 @@
 ---
-title: "Welcome"
+title: "Brian Kunzang"
 type: "home"
 ---
-# Welcome to my website!
+# Brian Kunzang
+
+[bkunzang@berkeley.edu](mailto:bkunzang@berkeley.edu)
